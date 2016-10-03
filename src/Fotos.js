@@ -39,8 +39,8 @@ class FotoItem extends Component {
 	render(){
 		return (
           <div className="foto">
-          	<FotoHeader/>
-            <img alt="foto" className="foto-src" src={this.props.foto.url}/>
+          	<FotoHeader foto={this.props.foto}/>
+            <img alt="foto" className="foto-src" src={this.props.foto.urlFoto}/>
             <FotoInfo/>
             <FotoAtualizacoes/>
           </div>  			
@@ -52,9 +52,9 @@ class FotoHeader extends Component {
 	render(){
 		return (
             <div className="foto-header">
-              <img src="https://instagram.fcgh10-1.fna.fbcdn.net/t51.2885-19/11199408_569104449895751_1837574990_a.jpg" alt="foto do usuario"/>
-              <span>Nome do usuario</span>
-              <span>12m</span>
+              <img src={this.props.foto.urlPerfil} alt="foto do usuario"/>
+              <span>{this.props.foto.loginUsuario}</span>
+              <span>{this.props.foto.horario}</span>
             </div>			
 		);
 	}
