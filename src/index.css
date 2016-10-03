@@ -1,0 +1,10 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.foto-src {
+	width:400px;
+	heigth:300px;
+}
