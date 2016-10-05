@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
+import PubSub from 'pubsub-js'
 
 export default class FotosBox extends Component {
 
@@ -24,7 +25,7 @@ export default class FotosBox extends Component {
 
 	render() {		
 		return (		
-        <div className="fotos"> 
+        <div className="fotos container">
         {
         	this.state.fotos.map((foto) => {
         		return <FotoItem key={foto.id} foto={foto}/>
@@ -40,9 +41,9 @@ class FotoItem extends Component {
 		return (
           <div className="foto">
           	<FotoHeader foto={this.props.foto}/>
-            <img alt="foto" className="foto-src" src={this.props.foto.urlFoto}/>
-            <FotoInfo/>
-            <FotoAtualizacoes/>
+          	<img alt="foto" className="foto-src" src={this.props.foto.urlFoto}/>            
+            <FotoInfo foto={this.props.foto}/>
+            <FotoAtualizacoes foto={this.props.foto}/>
           </div>  			
 		);
 	}
@@ -51,44 +52,119 @@ class FotoItem extends Component {
 class FotoHeader extends Component {
 	render(){
 		return (
-            <div className="foto-header">
-              <img src={this.props.foto.urlPerfil} alt="foto do usuario"/>
-              <span>{this.props.foto.loginUsuario}</span>
-              <span>{this.props.foto.horario}</span>
-            </div>			
+            <header className="foto-header">
+              <figure className="foto-usuario">
+                <img src={this.props.foto.urlPerfil} alt="foto do usuario"/>
+                <figcaption className="foto-usuario">
+                  <a href="#">
+                    {this.props.foto.loginUsuario}
+                  </a>  
+                </figcaption>
+              </figure>
+              <time className="foto-data">{this.props.foto.horario}</time>
+            </header>			
 		);
 	}
 }
 
 class FotoInfo extends Component {
+
+	constructor(){
+		super();
+		this.state = {likers : []};
+	}
+
+	componentWillMount(){
+		this.setState({likers : this.props.foto.likers});
+		PubSub.subscribe('atualiza-likers', (topico,novosLikers) => {						
+			this.setState({likers:novosLikers});
+		});
+	}
+
 	render(){
 		return(
             <div className="foto-info">
-              <ul className="fotos-info-likes">
-                <li>alots_ssa</li>
-                <li>rafael_rollo</li>
-              </ul> 
-              <ul className="foto-info-comments">
-                <li>Autor : blabkabkba</li>
-                <li>Seguidor : comentario do seguidor</li>
-              </ul>                    
-            </div>			
+              <div className="foto-info-likes">
+
+              	{
+              		this.state.likers.map((liker) => {
+			    		return (<a key={liker.login} href="#">
+                  			{liker.login},
+                		</a>)
+              		})
+
+            	}
+
+            	{(() => {
+            			return this.state.likers.length > 0 ? "curtiram" : "";
+            		})()			
+				}
+             
+              </div>
+
+              <p className="foto-info-legenda">
+                <a className="foto-info-autor">autor </a>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est, illo?
+              </p>
+
+              <ul className="foto-info-comentarios">
+                <li className="comentario">
+                  <a className="foto-info-autor">seguidor </a>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem ad, molestiae.
+                </li>
+                <li className="comentario">
+                  <a className="foto-info-autor">seguidor </a>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt cumque earum molestias voluptatem modi nihil sit magnam ratione eveniet distinctio magni error asperiores dignissimos tempora expedita, laborum ex soluta hic maiores veritatis deserunt.
+                </li>
+                <li className="comentario">
+                  <a className="foto-info-autor">seguidor </a>
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum laudantium quae ab fuga odio delectus maiores voluptatibus sit commodi quidem.
+                </li>
+              </ul>
+            </div>
 		);
 	}
 }
 
 class FotoAtualizacoes extends Component {
-	render(){
-		return (
-            <div className="foto-atualizacoes">
-              <form className="foto-atualizacoes-novo-like">
-                <input type="image" value="coracao"/>
+
+	constructor(){
+		super();
+		this.state = {deuLike : false};
+		this.like = this.like.bind(this);
+	}
+
+	componentWillMount(){						
+		this.setState({deuLike : this.props.foto.likeada});
+	}
+
+	like(event){		
+		event.preventDefault();
+		this.setState({deuLike : true});		
+		$.ajax({
+			url: 'http://localhost:8080/api/fotos/'+this.props.foto.id+'/like',
+			type: 'POST',
+			dataType: 'json',
+			success: (resposta) => {
+				PubSub.publish('atualiza-likers', resposta);
+			},
+			error: (resposta) => {		
+				console.log(resposta);
+				this.setState({deuLike : false});
+			}
+		});		
+	}
+
+	render(){		
+		return (			
+            <section className="fotoAtualizacoes">              
+              <a href={'http://localhost:8080/api/foto/'+this.props.foto.id+'/like'} onClick={this.like} className={this.state.deuLike ? 'fotoAtualizacoes-like fotoAtualizacoes-like-likeado' : 'fotoAtualizacoes-like'}>Likar</a>
+              <form className="fotoAtualizacoes-form-comentario">
+                <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-comentario-campo"/>
+                <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-comentario-submit"/>
               </form>
-              <form className="foto-atualizacoes-novo-comentario">
-                <input type="text" value="" placeholder="novo comentario"/>
-                <input type="submit" value="enviar"/>
-              </form>               
-            </div>			
+
+            </section>			
 		);
 	}
 }
