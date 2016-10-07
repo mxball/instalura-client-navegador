@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import FotosBox from './Fotos';
 
-class App extends Component {
+export default class Timeline extends Component {
   render() {
     return (
       <div className="main">
@@ -34,5 +34,3 @@ class App extends Component {
     );
   }
 }
-
-export default App;

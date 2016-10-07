@@ -9,16 +9,16 @@ export default class FotosBox extends Component {
 		this.state = {fotos : []};
 	}
 
-	componentDidMount(){	   
+	componentDidMount(){		
 	   $.ajax({
-	        url:"http://localhost:8080/api/fotos/1",
+	        url:"http://localhost:8080/api/fotos?X-AUTH-TOKEN="+localStorage.getItem("auth-token"),
 	        dataType: 'json',
 	        success: (resposta) => {	          
 	          this.setState({fotos:resposta});
 	        },
 	        error: (resposta) => {
 	       		console.log("erro  "+resposta) 	;
-	        }
+	        }	        
 	      } 
 	    );          		
 	}
@@ -147,7 +147,7 @@ class FotoAtualizacoes extends Component {
 		event.preventDefault();
 		this.setState({deuLike : true});		
 		$.ajax({
-			url: 'http://localhost:8080/api/fotos/'+this.props.foto.id+'/like',
+			url: 'http://localhost:8080/api/fotos/'+this.props.foto.id+'/like?X-AUTH-TOKEN='+localStorage.getItem("auth-token"),
 			type: 'POST',
 			dataType: 'json',
 			success: (resposta) => {
@@ -163,7 +163,7 @@ class FotoAtualizacoes extends Component {
 	render(){		
 		return (			
             <section className="fotoAtualizacoes">              
-              <a href={'http://localhost:8080/api/foto/'+this.props.foto.id+'/like'} onClick={this.like} className={this.state.deuLike ? 'fotoAtualizacoes-like fotoAtualizacoes-like-likeado' : 'fotoAtualizacoes-like'}>Likar</a>
+              <a onClick={this.like} className={this.state.deuLike ? 'fotoAtualizacoes-like fotoAtualizacoes-like-likeado' : 'fotoAtualizacoes-like'}>Likar</a>
               <ComentarioForm foto={this.props.foto}/>
             </section>			
 		);
@@ -187,7 +187,7 @@ class ComentarioForm extends Component {
 
 		var value = this.state.comentario.trim();
 		$.ajax({
-			url: 'http://localhost:8080/api/fotos/'+this.props.foto.id+'/comment',
+			url: 'http://localhost:8080/api/fotos/'+this.props.foto.id+'/comment?X-AUTH-TOKEN='+localStorage.getItem("auth-token"),
 			type: 'POST',
 			data: JSON.stringify({texto: value}),
 			dataType: 'json',
