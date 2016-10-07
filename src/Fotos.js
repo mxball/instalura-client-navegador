@@ -193,7 +193,7 @@ class ComentarioForm extends Component {
 			dataType: 'json',
 			contentType: 'application/json',
 			success: (resposta) => {
-				console.log("success\n" + resposta);
+				this.setState({comentario:''});				
 				PubSub.publish('atualiza-comentarios', resposta);
 			},
 			error: (resposta) => {		
