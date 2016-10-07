@@ -71,13 +71,19 @@ class FotoInfo extends Component {
 
 	constructor(){
 		super();
-		this.state = {likers : []};
+		this.state = {likers: [], comentarios: []};
 	}
 
 	componentWillMount(){
-		this.setState({likers : this.props.foto.likers});
+		this.setState({
+			likers : this.props.foto.likers, 
+			comentarios: this.props.foto.comentarios
+		});
 		PubSub.subscribe('atualiza-likers', (topico,novosLikers) => {						
 			this.setState({likers:novosLikers});
+		});
+		PubSub.subscribe('atualiza-comentarios', (topico,novosComentarios) => {						
+			this.setState({comentarios:novosComentarios});
 		});
 	}
 
@@ -107,19 +113,18 @@ class FotoInfo extends Component {
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Est, illo?
               </p>
 
+
               <ul className="foto-info-comentarios">
-                <li className="comentario">
-                  <a className="foto-info-autor">seguidor </a>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quidem ad, molestiae.
-                </li>
-                <li className="comentario">
-                  <a className="foto-info-autor">seguidor </a>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt cumque earum molestias voluptatem modi nihil sit magnam ratione eveniet distinctio magni error asperiores dignissimos tempora expedita, laborum ex soluta hic maiores veritatis deserunt.
-                </li>
-                <li className="comentario">
-                  <a className="foto-info-autor">seguidor </a>
-                  Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsum laudantium quae ab fuga odio delectus maiores voluptatibus sit commodi quidem.
-                </li>
+              {
+              	this.state.comentarios.map((comentario) => {
+              		return (
+		                <li key={comentario.texto} className="comentario">
+		                  <a className="foto-info-autor">{comentario.login}</a>
+		                  {comentario.texto}
+		                </li>
+              		)
+              	})
+              }
               </ul>
             </div>
 		);
@@ -159,12 +164,50 @@ class FotoAtualizacoes extends Component {
 		return (			
             <section className="fotoAtualizacoes">              
               <a href={'http://localhost:8080/api/foto/'+this.props.foto.id+'/like'} onClick={this.like} className={this.state.deuLike ? 'fotoAtualizacoes-like fotoAtualizacoes-like-likeado' : 'fotoAtualizacoes-like'}>Likar</a>
-              <form className="fotoAtualizacoes-form-comentario">
-                <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-comentario-campo"/>
-                <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-comentario-submit"/>
-              </form>
-
+              <ComentarioForm foto={this.props.foto}/>
             </section>			
+		);
+	}
+}
+
+class ComentarioForm extends Component {
+	
+	constructor() {
+		super();
+		this.state = {comentario: ''};
+		this.comment = this.comment.bind(this);
+	} 
+
+	onChangeComentario(nomeInput, e) {
+		this.setState({[nomeInput]: e.target.value});
+	}
+	
+	comment(event){		
+		event.preventDefault();
+
+		var value = this.state.comentario.trim();
+		$.ajax({
+			url: 'http://localhost:8080/api/fotos/'+this.props.foto.id+'/comment',
+			type: 'POST',
+			data: JSON.stringify({texto: value}),
+			dataType: 'json',
+			contentType: 'application/json',
+			success: (resposta) => {
+				console.log("success\n" + resposta);
+				PubSub.publish('atualiza-comentarios', resposta);
+			},
+			error: (resposta) => {		
+				console.log(resposta);
+			}
+		});		
+	}
+
+	render() {
+		return (
+          <form className="fotoAtualizacoes-form-comentario" onSubmit={this.comment}>
+            <input type="text" value={this.state.comentario} placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-comentario-campo" onChange={this.onChangeComentario.bind(this, 'comentario')}/>
+            <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-comentario-submit" />
+          </form>
 		);
 	}
 }
