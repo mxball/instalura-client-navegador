@@ -20,7 +20,10 @@ export default class FotosBox extends Component {
 	       		console.log("erro  "+resposta) 	;
 	        }	        
 	      } 
-	    );          		
+	    );
+	   PubSub.subscribe('pesquisa', (topico, resposta) => {
+	   		this.setState({fotos: resposta});
+	   });
 	}
 
 	render() {		
