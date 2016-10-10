@@ -79,11 +79,15 @@ class FotoInfo extends Component {
 			likers : this.props.foto.likers, 
 			comentarios: this.props.foto.comentarios
 		});
-		PubSub.subscribe('atualiza-likers', (topico,novosLikers) => {						
-			this.setState({likers:novosLikers});
+		PubSub.subscribe('atualiza-likers', (topico,fotoInfo) => {						
+			if(this.props.foto.id === fotoInfo.idFoto) {
+				this.setState({likers:fotoInfo.novosLikers});
+			}
 		});
-		PubSub.subscribe('atualiza-comentarios', (topico,novosComentarios) => {						
-			this.setState({comentarios:novosComentarios});
+		PubSub.subscribe('atualiza-comentarios', (topico,fotoInfo) => {						
+			if(this.props.foto.id === fotoInfo.idFoto) {
+				this.setState({comentarios:fotoInfo.novosComentarios});
+			}
 		});
 	}
 
@@ -151,7 +155,7 @@ class FotoAtualizacoes extends Component {
 			type: 'POST',
 			dataType: 'json',
 			success: (resposta) => {
-				PubSub.publish('atualiza-likers', resposta);
+				PubSub.publish('atualiza-likers', {fotoId:this.props.foto.id,novosLikers:resposta});
 			},
 			error: (resposta) => {		
 				console.log(resposta);
@@ -194,7 +198,7 @@ class ComentarioForm extends Component {
 			contentType: 'application/json',
 			success: (resposta) => {
 				this.setState({comentario:''});				
-				PubSub.publish('atualiza-comentarios', resposta);
+				PubSub.publish('atualiza-comentarios', {idFoto:this.props.foto.id,novosComentarios:resposta});
 			},
 			error: (resposta) => {		
 				console.log(resposta);
