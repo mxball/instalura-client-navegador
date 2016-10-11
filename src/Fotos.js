@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import PubSub from 'pubsub-js'
+import PubSub from 'pubsub-js';
+import {Link} from 'react-router';
 
 export default class FotosBox extends Component {
 
 	constructor(){
 		super();
-		this.state = {fotos : []};
+		this.state = {fotos : [],login:''};
+		this.carregaFotos = this.carregaFotos.bind(this);
 	}
 
-	componentDidMount(){		
+	carregaFotos(urlUsuario){
 	   $.ajax({
-	        url:"http://localhost:8080/api/fotos?X-AUTH-TOKEN="+localStorage.getItem("auth-token"),
+	        url:urlUsuario+"?X-AUTH-TOKEN="+localStorage.getItem("auth-token"),
 	        dataType: 'json',
 	        success: (resposta) => {	          
 	          this.setState({fotos:resposta});
@@ -21,9 +23,20 @@ export default class FotosBox extends Component {
 	        }	        
 	      } 
 	    );
+	}
+
+	componentDidMount(){	
+	   this.carregaFotos('http://localhost:8080/api/fotos');	
 	   PubSub.subscribe('pesquisa', (topico, resposta) => {
 	   		this.setState({fotos: resposta});
 	   });
+	}
+
+	componentWillReceiveProps(novoProps) {
+		if(this.state.login !== novoProps.login) {
+			this.carregaFotos('http://localhost:8080/api/fotos/'+novoProps.login);
+			this.setState({login:novoProps.login});
+		}
 	}
 
 	render() {		
@@ -59,9 +72,9 @@ class FotoHeader extends Component {
               <figure className="foto-usuario">
                 <img src={this.props.foto.urlPerfil} alt="foto do usuario"/>
                 <figcaption className="foto-usuario">
-                  <a href="#">
+                  <Link to={'/timeline/'+this.props.foto.loginUsuario}>
                     {this.props.foto.loginUsuario}
-                  </a>  
+                  </Link>  
                 </figcaption>
               </figure>
               <time className="foto-data">{this.props.foto.horario}</time>
@@ -101,9 +114,9 @@ class FotoInfo extends Component {
 
               	{
               		this.state.likers.map((liker) => {
-			    		return (<a key={liker.login} href="#">
+			    		return (<Link key={liker.login} to={'/timeline/'+liker.login}>
                   			{liker.login},
-                		</a>)
+                		</Link>)
               		})
 
             	}
@@ -158,7 +171,7 @@ class FotoAtualizacoes extends Component {
 			type: 'POST',
 			dataType: 'json',
 			success: (resposta) => {
-				PubSub.publish('atualiza-likers', {fotoId:this.props.foto.id,novosLikers:resposta});
+				PubSub.publish('atualiza-likers', {idFoto:this.props.foto.id,novosLikers:resposta});
 			},
 			error: (resposta) => {		
 				console.log(resposta);

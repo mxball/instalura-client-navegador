@@ -11,7 +11,7 @@ import {browserHistory} from 'react-router'
 ReactDOM.render((
 	<Router history={browserHistory}>
     	<Route path="/" component={Login}/>	    	    	
-    	<Route path="/timeline" component={Timeline}/>	    	
+    	<Route path="/timeline(/:login)" component={Timeline}/>	    	    	
     </Router>
 ), document.getElementById('root'));
 

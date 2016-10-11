@@ -18,12 +18,12 @@ export default class Busca extends Component {
 	envia(event){
 		event.preventDefault();
 
-		var value = this.state.busca;
+		var login = this.state.busca;
 		$.ajax({
 			beforeSend: () => {
 				PubSub.publish('mensagem', 'carregando');
 			},
-			url: 'http://localhost:8080/api/busca?q='+ value +'&X-AUTH-TOKEN='+localStorage.getItem("auth-token"),
+			url: 'http://localhost:8080/api/fotos/'+ login +'?X-AUTH-TOKEN='+localStorage.getItem("auth-token"),
 			type: 'GET',
 			dataType: 'json',
 			success: (resposta) => {

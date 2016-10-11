@@ -26,7 +26,7 @@ export default class Timeline extends Component {
             </ul>
           </nav>          
         </header>      
-        <FotosBox/>
+        <FotosBox login={this.props.params.login}/>
       </div>
     );
   }
