@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import $ from 'jquery';
 import PubSub from 'pubsub-js';
 import {Link} from 'react-router';
+import ReactCSSTransitionGroup  from 'react-addons-css-transition-group';
+
 
 export default class FotosBox extends Component {
 
@@ -42,11 +44,16 @@ export default class FotosBox extends Component {
 	render() {		
 		return (		
         <div className="fotos container">
-        {
-        	this.state.fotos.map((foto) => {
-        		return <FotoItem key={foto.id} foto={foto}/>
-        	})        	
-        }	
+        <ReactCSSTransitionGroup 
+          transitionName="timeline">
+
+		        {
+		        	this.state.fotos.map((foto) => {
+		        		return <FotoItem key={foto.id} foto={foto}/>
+		        	})        	
+		        }	
+
+        </ReactCSSTransitionGroup>        
         </div>			
 		);
 	}
