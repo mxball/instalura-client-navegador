@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import FotosBox from './Fotos';
 import Busca from './Busca'
 import EsperandoResposta from './EsperandoResposta'
+import Infos from './Infos'
 
 export default class Timeline extends Component {
   render() {
@@ -11,7 +12,8 @@ export default class Timeline extends Component {
         <header className="header container">
           <h1 className="header-logo">
             Instalura
-          </h1>
+          </h1>       
+        <Infos/>
         <Busca/>
         <EsperandoResposta/>
           <nav>

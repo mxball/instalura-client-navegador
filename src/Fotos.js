@@ -3,7 +3,7 @@ import $ from 'jquery';
 import PubSub from 'pubsub-js';
 import {Link} from 'react-router';
 import ReactCSSTransitionGroup  from 'react-addons-css-transition-group';
-
+var dispatcher = require('./AppDispatcher');
 
 export default class FotosBox extends Component {
 
@@ -184,7 +184,11 @@ class FotoAtualizacoes extends Component {
 				console.log(resposta);
 				this.setState({deuLike : false});
 			}
-		});		
+		});	
+	    dispatcher.dispatch({
+      		actionType: 'atualiza',
+      		text: 2
+    	});	
 	}
 
 	render(){		
